@@ -3,7 +3,9 @@
 .MuiTypography-caption-48, .MuiTooltip-tooltip-65, 
 .MuiTableHead-root-34, .MuiTableBody-root-80, 
 .Pagination-rowsLabel-105, .MuiIconButton-root-83, 
-.MuiButton-root-111,.PageSizeSelector-pageSizeSelector-126 {
+.MuiButton-root-111, .PageSizeSelector-pageSizeSelector-126, .MuiTableHead-root-123, .PageSizeSelector-pageSizeSelector-215, .Pagination-pagination-193, .Pagination-rowsLabel-194,
+.MuiButtonBase-root-160, .MuiTableBody-root-169, .MuiButtonBase-root-160 .MuiTableSortLabel-root-155 .SortingControl-sortLabelRoot-144,
+.MuiTooltip-root-146 > .SortingControl-tooltipRoot-143 {
     font-size: inherit !important;
 }
 

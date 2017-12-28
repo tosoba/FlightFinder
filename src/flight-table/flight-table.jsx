@@ -44,74 +44,43 @@ class FlightTable extends React.Component {
                 { name: 'arrival', title: 'Arrival' },
                 { name: 'price', title: 'Price' }
             ],
-            rows: [
-                {
-                    from: 'aa',
-                    to: 'M',
-                    departure: 15,
-                    arrival: 25,
-                    price: 500,
-                    legs: [
-                        {
-                            from: 'aa',
-                            to: 'M',
-                            departure: 'AVV',
-                            arrival: 'ff',
-                            airline: 'KLM'
-                        }
-                    ]
-                },
-                {
-                    from: 'bb',
-                    to: 'N',
-                    departure: 15,
-                    arrival: 20,
-                    price: 500,
-                    legs: [
-                        {
-                            from: 'aa',
-                            to: 'M',
-                            departure: 'AVV',
-                            arrival: 'ff',
-                            airline: 'KLM'
-                        }
-                    ]
-                }
-            ],
+            rows: props.flights,
             allowedPageSizes: [5, 10, 15, 0]
         };
+    }
+
+    updateFlights(flights) {
+        this.setState({rows: flights});
     }
 
     render() {
         const { rows, columns, allowedPageSizes } = this.state;
 
         return (
-            <Paper>
-                <Grid
-                    rows={rows}
-                    columns={columns}
-                >
-                    <SortingState />
-                    <LocalSorting />
-                    <RowDetailState />
-                    <PagingState
-                        defaultCurrentPage={0}
-                        defaultPageSize={5}
-                    />
-                    <LocalPaging />
-                    <Table />
+            <Grid
+                rows={rows}
+                columns={columns}
+            >
+                <SortingState />
+                <LocalSorting />
+                <RowDetailState />
+                <PagingState
+                    defaultCurrentPage={0}
+                    defaultPageSize={5}
+                />
+                <LocalPaging />
+                <Table />
 
-                    <TableHeaderRow
-                        allowSorting
-                    />
-                    <TableRowDetail
-                        contentComponent={RowDetail}
-                    />
-                    <PagingPanel
-                        allowedPageSizes={allowedPageSizes}
-                    />
-                </Grid>
-            </Paper>
+                <TableHeaderRow
+                    allowSorting
+                />
+                <TableRowDetail
+                    contentComponent={RowDetail}
+                />
+                <PagingPanel
+                    allowedPageSizes={allowedPageSizes}
+                />
+            </Grid>
         );
     }
 }

@@ -6,8 +6,11 @@ import DatePicker from 'material-ui-prev/DatePicker';
 import RaisedButton from 'material-ui-prev/RaisedButton';
 import Snackbar from 'material-ui-prev/Snackbar';
 import axios from 'axios';
+import Paper from 'material-ui/Paper';
+import Grid from 'material-ui/Grid';
 
-import FlightTable from '../flight-table/flight-table'
+import FlightMap from '../map/map';
+import FlightTable from '../flight-table/flight-table';
 
 const menuProps = {
     desktop: true,
@@ -116,8 +119,29 @@ class RoundTripForm extends React.Component {
 
         let url = `https://api.skypicker.com/flights?flyFrom=${airports[indexOfDepartureAirport].IATA}&to=${airports[indexOfDestinationAirport].IATA}&dateFrom=${this.formatDate(this.state.departureDate)}&dateTo=${this.formatDate(this.state.departureDate)}&returnFrom=${this.formatDate(this.state.returnDate)}&returnTo=${this.formatDate(this.state.returnDate)}&partner=picky`;
         axios.get(url)
-            .then((response) => {
+            .then(response => {
                 console.log(response);
+                let flightsData = response.data.data;
+                let flights = flightsData.map(fd => {
+                    return {
+                        from: airports[indexOfDepartureAirport].IATA,
+                        to: airports[indexOfDestinationAirport].IATA,
+                        departure: this.formatDate(new Date(fd.dTimeUTC * 1000)),
+                        arrival: this.formatDate(new Date(fd.aTimeUTC * 1000)),
+                        price: fd.conversion.EUR,
+                        legs: fd.route.map(r => {
+                            return {
+                                from: r.flyFrom,
+                                to: r.flyTo,
+                                departure: this.formatDate(new Date(r.dTimeUTC * 1000)),
+                                arrival: this.formatDate(new Date(r.aTimeUTC * 1000)),
+                                airline: r.airline
+                            };
+                        })
+                    };
+                });
+
+                this.tableChild.updateFlights(flights);
             })
             .catch((error) => {
                 console.log(error);
@@ -125,49 +149,99 @@ class RoundTripForm extends React.Component {
     }
 
     render(props) {
+        const testRows = [
+            {
+                from: 'aa',
+                to: 'M',
+                departure: 15,
+                arrival: 25,
+                price: 500,
+                legs: [
+                    {
+                        from: 'aa',
+                        to: 'M',
+                        departure: 'AVV',
+                        arrival: 'ff',
+                        airline: 'KLM'
+                    }
+                ]
+            },
+            {
+                from: 'bb',
+                to: 'N',
+                departure: 15,
+                arrival: 20,
+                price: 500,
+                legs: [
+                    {
+                        from: 'aa',
+                        to: 'M',
+                        departure: 'AVV',
+                        arrival: 'ff',
+                        airline: 'KLM'
+                    }
+                ]
+            }
+        ];
         return (
             <div>
-                <div style={{ width: '25%', display: 'inline-block', marginRight: '20px' }}>
-                    <AutoComplete
-                        floatingLabelText="Departure airport"
-                        filter={this.filterData}
-                        dataSource={airports.map(a => a.text)}
-                        maxSearchResults={40}
-                        fullWidth={true}
-                        menuProps={menuProps}
-                        onNewRequest={this.onNewRequestFrom}
-                    />
-                </div>
-                <div style={{ width: '25%', display: 'inline-block' }}>
-                    <AutoComplete
-                        floatingLabelText="Return airport"
-                        filter={this.filterData}
-                        dataSource={airports.map(a => a.text)}
-                        maxSearchResults={40}
-                        fullWidth={true}
-                        menuProps={menuProps}
-                        onNewRequest={this.onNewRequestTo}
-                    />
-                </div>
-                <br />
-                <br />
-                <div style={{ width: '25%', display: 'inline-block', marginRight: '20px' }}>
-                    <DatePicker hintText="Date from" container="inline" mode="landscape" autoOk={true} textFieldStyle={{ width: '100%' }} floatingLabelText="Date from"
-                        minDate={new Date()} defaultDate={new Date(+new Date() + 864e5)} />
-                </div>
-                <div style={{ width: '25%', display: 'inline-block' }}>
-                    <DatePicker hintText="Return date" container="inline" mode="landscape" autoOk={true} textFieldStyle={{ width: '100%' }} floatingLabelText="Return date"
-                        minDate={new Date()} defaultDate={new Date(+new Date() + 6048e5)} />
-                </div>
-                <div style={{ width: '50%' }}>
-                    <RaisedButton label="Search" fullWidth={true} primary={true} style={{ marginTop: '10px', marginLeft: '10px' }}
-                        onClick={this.findFlights} />
-                </div>
+                <Grid container spacing={24} style={{paddingTop: '20px'}}>
+                    <Grid item xs={6} sm={6}>
+                        <Paper style={{padding: '10px 20px 20px 20px', height: '300px'}}>
+                            <h3>Search for flights</h3>
+                            <div style={{ width: '49%', display: 'inline-block', marginRight: '20px'}}>
+                                <AutoComplete
+                                    floatingLabelText="Departure airport"
+                                    filter={this.filterData}
+                                    dataSource={airports.map(a => a.text)}
+                                    maxSearchResults={40}
+                                    fullWidth={true}
+                                    menuProps={menuProps}
+                                    onNewRequest={this.onNewRequestFrom}
+                                />
+                            </div>
+                            <div style={{ width: '49%', display: 'inline-block' }}>
+                                <AutoComplete
+                                    floatingLabelText="Return airport"
+                                    filter={this.filterData}
+                                    dataSource={airports.map(a => a.text)}
+                                    maxSearchResults={40}
+                                    fullWidth={true}
+                                    menuProps={menuProps}
+                                    onNewRequest={this.onNewRequestTo}
+                                />
+                            </div>
+                            <br />
+                            <br />
+                            <div style={{ width: '49%', display: 'inline-block', marginRight: '20px' }}>
+                                <DatePicker hintText="Date from" container="inline" mode="landscape" autoOk={true} textFieldStyle={{ width: '100%' }} floatingLabelText="Date from"
+                                    minDate={new Date()} defaultDate={new Date(+new Date() + 864e5)} />
+                            </div>
+                            <div style={{ width: '49%', display: 'inline-block' }}>
+                                <DatePicker hintText="Return date" container="inline" mode="landscape" autoOk={true} textFieldStyle={{ width: '100%' }} floatingLabelText="Return date"
+                                    minDate={new Date()} defaultDate={new Date(+new Date() + 6048e5)} />
+                            </div>
+                            <div>
+                                <RaisedButton label="Search" fullWidth={true} primary={true} style={{ marginTop: '10px'}}
+                                    onClick={this.findFlights} />
+                            </div>
 
+                            <br />
+                            
+                        </Paper>
+                    </Grid>
+                    <Grid item xs={6} sm={6}>
+                        <Paper>
+                            <FlightMap />
+                        </Paper>
+                    </Grid>
+                </Grid>
                 <br/>
-                <div style={{ width: '50%', fontSize: '15px' }}>
-                    <FlightTable />
-                </div>
+                <Grid item xs={12}>
+                    <Paper style={{padding: '10px', fontSize: 'inherit !important'}}>
+                        <FlightTable flights={testRows} ref={instance => { this.tableChild = instance; }}/>
+                    </Paper>
+                </Grid>
 
                 <Snackbar
                     open={this.state.snackbarInvalidAirportOpen}
