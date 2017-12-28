@@ -1,0 +1,12 @@
+.MuiTableHead-root-90, .MuiTypography-title-44, 
+.MuiTableBody-root-123, .MuiTableFooter-root-124, 
+.MuiTypography-caption-48, .MuiTooltip-tooltip-65, 
+.MuiTableHead-root-34, .MuiTableBody-root-80, 
+.Pagination-rowsLabel-105, .MuiIconButton-root-83, 
+.MuiButton-root-111,.PageSizeSelector-pageSizeSelector-126 {
+    font-size: inherit !important;
+}
+
+[class^="MuiMenuItem"],[class*='MuiMenuItem'] {
+    font-size: inherit !important;
+}
