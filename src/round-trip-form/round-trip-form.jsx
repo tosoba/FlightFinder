@@ -8,6 +8,7 @@ import Snackbar from 'material-ui-prev/Snackbar';
 import axios from 'axios';
 import Paper from 'material-ui/Paper';
 import Grid from 'material-ui/Grid';
+import { RadioButton, RadioButtonGroup } from 'material-ui-prev/RadioButton';
 
 import FlightMap from '../map/map';
 import FlightTable from '../flight-table/flight-table';
@@ -27,7 +28,8 @@ class RoundTripForm extends React.Component {
             returnDate: new Date(+new Date() + 6048e5),
             snackbarInvalidAirportOpen: false,
             snackbarInvalidDateOpen: false,
-            snackbarInvalidAirportText: ''
+            snackbarInvalidAirportText: '',
+            flightMode: 'round_trip'
         };
 
         this.handleRequestCloseAirportSnackbar = this.handleRequestCloseAirportSnackbar.bind(this);
@@ -39,13 +41,22 @@ class RoundTripForm extends React.Component {
         this.findFlights = this.findFlights.bind(this);
         this.openInvalidAirportSnackbar = this.openInvalidAirportSnackbar.bind(this);
         this.formatDate = this.formatDate.bind(this);
+        this.onFlightModeChanged = this.onFlightModeChanged.bind(this);
+        this.onDepartureDateChanged = this.onDepartureDateChanged.bind(this);
+        this.onReturnDateChanged = this.onReturnDateChanged.bind(this);
     }
 
-    formatDate = (date) => {
+    onFlightModeChanged = (event, value) => {
+        this.setState({flightMode: value});
+    }
+
+    formatDate = (date, mode = 'YMD') => {
         let yyyy = date.getFullYear();
         let mm = date.getMonth() < 9 ? "0" + (date.getMonth() + 1) : (date.getMonth() + 1); // getMonth() is zero-based
         let dd = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
-        return "".concat(dd + '/').concat(mm + '/').concat(yyyy);
+        if (mode === 'YMD') return "".concat(dd + '/').concat(mm + '/').concat(yyyy);
+        else if (mode === 'DMY') return "".concat(yyyy + '/').concat(mm + '/').concat(dd);
+        else return "";
     }
 
     openInvalidAirportSnackbar = (text) => {
@@ -99,6 +110,14 @@ class RoundTripForm extends React.Component {
         return searchText !== '' && key.toLowerCase().indexOf(searchText.toLowerCase()) !== -1;
     }
 
+    onDepartureDateChanged(date) {
+        this.setState({departureDate: date});
+    }
+
+    onReturnDateChanged(date) {
+        this.setState({returnDate: date});
+    }
+
     findFlights() {
         if (this.state.departureDate > this.state.returnDate) {
             this.setState({ snackbarInvalidDateOpen: true });
@@ -117,7 +136,10 @@ class RoundTripForm extends React.Component {
             return;
         }
 
-        let url = `https://api.skypicker.com/flights?flyFrom=${airports[indexOfDepartureAirport].IATA}&to=${airports[indexOfDestinationAirport].IATA}&dateFrom=${this.formatDate(this.state.departureDate)}&dateTo=${this.formatDate(this.state.departureDate)}&returnFrom=${this.formatDate(this.state.returnDate)}&returnTo=${this.formatDate(this.state.returnDate)}&partner=picky`;
+        let url = this.state.flightMode === 'round_trip' ? 
+        `https://api.skypicker.com/flights?flyFrom=${airports[indexOfDepartureAirport].IATA}&to=${airports[indexOfDestinationAirport].IATA}&dateFrom=${this.formatDate(this.state.departureDate)}&dateTo=${this.formatDate(this.state.departureDate)}&returnFrom=${this.formatDate(this.state.returnDate)}&returnTo=${this.formatDate(this.state.returnDate)}&partner=picky` :
+        `https://api.skypicker.com/flights?flyFrom=${airports[indexOfDepartureAirport].IATA}&to=${airports[indexOfDestinationAirport].IATA}&dateFrom=${this.formatDate(this.state.departureDate)}&dateTo=${this.formatDate(this.state.departureDate)}&partner=picky`;
+        
         axios.get(url)
             .then(response => {
                 console.log(response);
@@ -126,15 +148,15 @@ class RoundTripForm extends React.Component {
                     return {
                         from: airports[indexOfDepartureAirport].IATA,
                         to: airports[indexOfDestinationAirport].IATA,
-                        departure: this.formatDate(new Date(fd.dTimeUTC * 1000)),
-                        arrival: this.formatDate(new Date(fd.aTimeUTC * 1000)),
+                        departure: this.formatDate(new Date(fd.dTimeUTC * 1000), 'DMY'),
+                        arrival: this.formatDate(new Date(fd.aTimeUTC * 1000), 'DMY'),
                         price: fd.conversion.EUR,
                         legs: fd.route.map(r => {
                             return {
                                 from: r.flyFrom,
                                 to: r.flyTo,
-                                departure: this.formatDate(new Date(r.dTimeUTC * 1000)),
-                                arrival: this.formatDate(new Date(r.aTimeUTC * 1000)),
+                                departure: this.formatDate(new Date(r.dTimeUTC * 1000), 'DMY'),
+                                arrival: this.formatDate(new Date(r.aTimeUTC * 1000), 'DMY'),
                                 airline: r.airline
                             };
                         })
@@ -149,47 +171,29 @@ class RoundTripForm extends React.Component {
     }
 
     render(props) {
-        const testRows = [
-            {
-                from: 'aa',
-                to: 'M',
-                departure: 15,
-                arrival: 25,
-                price: 500,
-                legs: [
-                    {
-                        from: 'aa',
-                        to: 'M',
-                        departure: 'AVV',
-                        arrival: 'ff',
-                        airline: 'KLM'
-                    }
-                ]
-            },
-            {
-                from: 'bb',
-                to: 'N',
-                departure: 15,
-                arrival: 20,
-                price: 500,
-                legs: [
-                    {
-                        from: 'aa',
-                        to: 'M',
-                        departure: 'AVV',
-                        arrival: 'ff',
-                        airline: 'KLM'
-                    }
-                ]
-            }
-        ];
         return (
             <div>
-                <Grid container spacing={24} style={{paddingTop: '20px'}}>
+                <Grid container spacing={24} style={{ paddingTop: '20px' }}>
                     <Grid item xs={6} sm={6}>
-                        <Paper style={{padding: '10px 20px 20px 20px', height: '300px'}}>
-                            <h3>Search for flights</h3>
-                            <div style={{ width: '49%', display: 'inline-block', marginRight: '20px'}}>
+                        <Paper style={{ padding: '10px 20px 20px 20px', height: '300px' }}>
+                            <Grid container spacing={24}>
+                                <Grid item xs={6} sm={6} style={{ paddingTop: '20px', paddingBottom: '0px' }}>
+                                    <h3 style={{ marginTop: '0px', marginBottom: '0px' }}>Search for flights</h3>
+                                </Grid>
+                                <Grid item xs={6} sm={6} style={{ paddingBottom: '0px' }}>
+                                    <RadioButtonGroup name="flightMode" defaultSelected="round_trip" onChange={this.onFlightModeChanged}>
+                                        <RadioButton
+                                            value="one_way"
+                                            label="One way"
+                                        />
+                                        <RadioButton
+                                            value="round_trip"
+                                            label="Round trip"
+                                        />
+                                    </RadioButtonGroup>
+                                </Grid>
+                            </Grid>
+                            <div style={{ width: '49%', display: 'inline-block', marginRight: '20px' }}>
                                 <AutoComplete
                                     floatingLabelText="Departure airport"
                                     filter={this.filterData}
@@ -202,7 +206,7 @@ class RoundTripForm extends React.Component {
                             </div>
                             <div style={{ width: '49%', display: 'inline-block' }}>
                                 <AutoComplete
-                                    floatingLabelText="Return airport"
+                                    floatingLabelText="Destination airport"
                                     filter={this.filterData}
                                     dataSource={airports.map(a => a.text)}
                                     maxSearchResults={40}
@@ -212,22 +216,24 @@ class RoundTripForm extends React.Component {
                                 />
                             </div>
                             <br />
-                            <br />
                             <div style={{ width: '49%', display: 'inline-block', marginRight: '20px' }}>
-                                <DatePicker hintText="Date from" container="inline" mode="landscape" autoOk={true} textFieldStyle={{ width: '100%' }} floatingLabelText="Date from"
-                                    minDate={new Date()} defaultDate={new Date(+new Date() + 864e5)} />
+                                <DatePicker hintText="Date from" container="inline" mode="landscape" autoOk={true} 
+                                    textFieldStyle={{ width: '100%' }} floatingLabelText="Date from"
+                                    minDate={new Date()} defaultDate={new Date(+new Date() + 864e5)}
+                                    onChange={this.onDepartureDateChanged} />
                             </div>
                             <div style={{ width: '49%', display: 'inline-block' }}>
-                                <DatePicker hintText="Return date" container="inline" mode="landscape" autoOk={true} textFieldStyle={{ width: '100%' }} floatingLabelText="Return date"
-                                    minDate={new Date()} defaultDate={new Date(+new Date() + 6048e5)} />
+                                <DatePicker hintText="Return date" container="inline" mode="landscape" autoOk={true} 
+                                    textFieldStyle={{ width: '100%' }} floatingLabelText="Return date"
+                                    minDate={new Date()} defaultDate={new Date(+new Date() + 6048e5)} 
+                                    style={{display: this.state.flightMode === 'one_way' ? 'none' : 'block'}}
+                                    onChange={this.onReturnDateChanged}/>
                             </div>
                             <div>
-                                <RaisedButton label="Search" fullWidth={true} primary={true} style={{ marginTop: '10px'}}
+                                <RaisedButton label="Search" fullWidth={true} primary={true} style={{ marginTop: '30px' }}
                                     onClick={this.findFlights} />
                             </div>
-
                             <br />
-                            
                         </Paper>
                     </Grid>
                     <Grid item xs={6} sm={6}>
@@ -236,10 +242,10 @@ class RoundTripForm extends React.Component {
                         </Paper>
                     </Grid>
                 </Grid>
-                <br/>
+                <br />
                 <Grid item xs={12}>
-                    <Paper style={{padding: '10px', fontSize: 'inherit !important'}}>
-                        <FlightTable flights={testRows} ref={instance => { this.tableChild = instance; }}/>
+                    <Paper style={{ padding: '0px,10px,10px,10px', fontSize: 'inherit !important' }}>
+                        <FlightTable flights={[]} ref={instance => { this.tableChild = instance; }} />
                     </Paper>
                 </Grid>
 

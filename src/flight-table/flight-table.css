@@ -5,7 +5,7 @@
 .Pagination-rowsLabel-105, .MuiIconButton-root-83, 
 .MuiButton-root-111, .PageSizeSelector-pageSizeSelector-126, .MuiTableHead-root-123, .PageSizeSelector-pageSizeSelector-215, .Pagination-pagination-193, .Pagination-rowsLabel-194,
 .MuiButtonBase-root-160, .MuiTableBody-root-169, .MuiButtonBase-root-160 .MuiTableSortLabel-root-155 .SortingControl-sortLabelRoot-144,
-.MuiTooltip-root-146 > .SortingControl-tooltipRoot-143 {
+.MuiTooltip-root-146 > .SortingControl-tooltipRoot-143, .PageSizeSelector-pageSizeSelector-205, .Pagination-rowsLabel-175, .MuiTooltip-tooltip-149 {
     font-size: inherit !important;
 }
 

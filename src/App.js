@@ -18,7 +18,6 @@ const styles = {
 };
 
 class App extends Component {
-
     constructor(props) {
         super(props);
         this.state = {
@@ -32,19 +31,11 @@ class App extends Component {
                 <MuiThemeProvider>
                     <Tabs>
                         <Tab label="Round trip">
-                        <div className="main-wrapper">
-                            <RoundTripForm />
-                        </div>
-                        </Tab>
-                        <Tab label="One way" >
-                            <div>
-                                <h2 style={styles.headline}>Tab Two</h2>
-                                <p>
-                                    This is another example tab.
-                                </p>
+                            <div className="main-wrapper">
+                                <RoundTripForm />
                             </div>
                         </Tab>
-                        <Tab label="onActive">
+                        <Tab label="Multicity">
                             <div>
                                 <h2 style={styles.headline}>Tab Three</h2>
                                 <p>
