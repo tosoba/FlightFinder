@@ -1,6 +1,6 @@
 import React from "react";
 import { compose, withProps } from "recompose";
-import { withScriptjs, withGoogleMap, GoogleMap, Marker } from "react-google-maps";
+import { withScriptjs, withGoogleMap, GoogleMap, Marker, Polyline } from "react-google-maps";
 
 export default class MyFancyComponent extends React.PureComponent {
     constructor(props) {
@@ -29,8 +29,10 @@ export default class MyFancyComponent extends React.PureComponent {
                         <Marker position={{ lat: marker.lat, lng: marker.lng }} />
                     );
                 })}
+
+                {<Polyline path={props.markers}/>}
             </GoogleMap>
-            );
+        );
 
         this.calcBoundsOfCoords = this.calcBoundsOfCoords.bind(this);
         this.onFlightSelected = this.onFlightSelected.bind(this);
@@ -47,7 +49,9 @@ export default class MyFancyComponent extends React.PureComponent {
     }
 
     onFlightSelected = (flight) => {
-        this.setState({ airports: flight.coordinates });
+        this.setState({ 
+            airports: flight.coordinates,
+        });
         let bounds = this.calcBoundsOfCoords(flight.coordinates);
         this.map.fitBounds(bounds);
     }
