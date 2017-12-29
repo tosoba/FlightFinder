@@ -15,7 +15,6 @@ import {
 import {
     RowDetailState
 } from '@devexpress/dx-react-grid';
-import Paper from 'material-ui/Paper';
 import './flight-table.css';
 
 const RowDetail = ({ row }) => (
@@ -42,15 +41,24 @@ class FlightTable extends React.Component {
                 { name: 'to', title: 'To airport' },
                 { name: 'departure', title: 'Departure' },
                 { name: 'arrival', title: 'Arrival' },
-                { name: 'price', title: 'Price' }
+                { name: 'price', title: 'Price' },
+                { name: 'stops', title: 'Stops' }
             ],
             rows: props.flights,
             allowedPageSizes: [5, 10, 15, 0]
         };
+
+        this.TableRow = ({ row, ...restProps }) => (
+            <Table.Row
+                {...restProps}
+                onClick={() => this.props.onFlightSelected(row)}
+                style={{cursor: 'pointer'}}
+            />
+        );
     }
 
     updateFlights(flights) {
-        this.setState({rows: flights});
+        this.setState({ rows: flights });
     }
 
     render() {
@@ -69,7 +77,7 @@ class FlightTable extends React.Component {
                     defaultPageSize={5}
                 />
                 <LocalPaging />
-                <Table />
+                <Table rowComponent={this.TableRow}/>
 
                 <TableHeaderRow
                     allowSorting

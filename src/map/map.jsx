@@ -1,50 +1,61 @@
-import React from "react"
-import { compose, withProps } from "recompose"
-import { withScriptjs, withGoogleMap, GoogleMap, Marker } from "react-google-maps"
-
-const MyMapComponent = compose(
-    withProps({
-        googleMapURL: "https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=geometry,drawing,places",
-        loadingElement: <div style={{ height: `100%` }} />,
-        containerElement: <div style={{ height: `300px` }} />,
-        mapElement: <div style={{ height: `100%` }} />,
-    }),
-    withScriptjs,
-    withGoogleMap
-)((props) =>
-    <GoogleMap
-        defaultZoom={8}
-        defaultCenter={{ lat: -34.397, lng: 150.644 }}
-    >
-        {props.isMarkerShown && <Marker position={{ lat: -34.397, lng: 150.644 }} onClick={props.onMarkerClick} />}
-    </GoogleMap>
-    );
+import React from "react";
+import { compose, withProps } from "recompose";
+import { withScriptjs, withGoogleMap, GoogleMap, Marker } from "react-google-maps";
 
 export default class MyFancyComponent extends React.PureComponent {
-    state = {
-        isMarkerShown: false,
+    constructor(props) {
+        super(props);
+        this.state = {
+            airports: []
+        };
+
+        this.MapComponent = compose(
+            withProps({
+                googleMapURL: "https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=geometry,drawing,places",
+                loadingElement: <div style={{ height: `100%` }} />,
+                containerElement: <div style={{ height: `300px` }} />,
+                mapElement: <div style={{ height: `100%` }} />,
+            }),
+            withScriptjs,
+            withGoogleMap
+        )((props) =>
+            <GoogleMap
+                defaultZoom={2}
+                defaultCenter={{ lat: 0, lng: 0 }}
+                ref={(map) => {this.map = map;}}
+            >
+                {props.markers.map((marker) => {
+                    return (
+                        <Marker position={{ lat: marker.lat, lng: marker.lng }} />
+                    );
+                })}
+            </GoogleMap>
+            );
+
+        this.calcBoundsOfCoords = this.calcBoundsOfCoords.bind(this);
+        this.onFlightSelected = this.onFlightSelected.bind(this);
     }
 
-    componentDidMount() {
-        this.delayedShowMarker()
+    calcBoundsOfCoords = (coods) => {
+        return new window.google.maps.LatLngBounds({
+            lat: Math.min(...coods.map(c => c.lat)), 
+            lng: Math.min(...coods.map(c => c.lng))
+        }, {
+            lat: Math.max(...coods.map(c => c.lat)), 
+            lng: Math.max(...coods.map(c => c.lng)) 
+        });
     }
 
-    delayedShowMarker = () => {
-        setTimeout(() => {
-            this.setState({ isMarkerShown: true })
-        }, 3000)
-    }
-
-    handleMarkerClick = () => {
-        this.setState({ isMarkerShown: false })
-        this.delayedShowMarker()
+    onFlightSelected = (flight) => {
+        this.setState({ airports: flight.coordinates });
+        let bounds = this.calcBoundsOfCoords(flight.coordinates);
+        this.map.fitBounds(bounds);
     }
 
     render() {
         return (
-            <MyMapComponent
-                isMarkerShown={this.state.isMarkerShown}
-                onMarkerClick={this.handleMarkerClick}
+            <this.MapComponent
+                markers={this.state.airports}
             />
         )
     }

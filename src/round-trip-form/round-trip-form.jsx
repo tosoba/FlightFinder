@@ -44,6 +44,7 @@ class RoundTripForm extends React.Component {
         this.onFlightModeChanged = this.onFlightModeChanged.bind(this);
         this.onDepartureDateChanged = this.onDepartureDateChanged.bind(this);
         this.onReturnDateChanged = this.onReturnDateChanged.bind(this);
+        this.onFlightSelected = this.onFlightSelected.bind(this);
     }
 
     onFlightModeChanged = (event, value) => {
@@ -110,11 +111,11 @@ class RoundTripForm extends React.Component {
         return searchText !== '' && key.toLowerCase().indexOf(searchText.toLowerCase()) !== -1;
     }
 
-    onDepartureDateChanged(date) {
+    onDepartureDateChanged(event, date) {
         this.setState({departureDate: date});
     }
 
-    onReturnDateChanged(date) {
+    onReturnDateChanged(event, date) {
         this.setState({returnDate: date});
     }
 
@@ -151,6 +152,7 @@ class RoundTripForm extends React.Component {
                         departure: this.formatDate(new Date(fd.dTimeUTC * 1000), 'DMY'),
                         arrival: this.formatDate(new Date(fd.aTimeUTC * 1000), 'DMY'),
                         price: fd.conversion.EUR,
+                        stops: this.state.flightMode === 'one_way' ? fd.route.length - 1 : fd.route.length - 2,
                         legs: fd.route.map(r => {
                             return {
                                 from: r.flyFrom,
@@ -159,7 +161,13 @@ class RoundTripForm extends React.Component {
                                 arrival: this.formatDate(new Date(r.aTimeUTC * 1000), 'DMY'),
                                 airline: r.airline
                             };
-                        })
+                        }),
+                        coordinates: (fd.route === undefined || fd.route.length === 0) ? [] : [{lat: fd.route[0].latFrom, lng: fd.route[0].lngFrom}].concat(fd.route.map(r => {
+                            return {
+                                lat: r.latTo,
+                                lng: r.lngTo
+                            };
+                        }))
                     };
                 });
 
@@ -168,6 +176,10 @@ class RoundTripForm extends React.Component {
             .catch((error) => {
                 console.log(error);
             })
+    }
+
+    onFlightSelected(flight) {
+        this.mapChild.onFlightSelected(flight);
     }
 
     render(props) {
@@ -238,14 +250,14 @@ class RoundTripForm extends React.Component {
                     </Grid>
                     <Grid item xs={6} sm={6}>
                         <Paper>
-                            <FlightMap />
+                            <FlightMap ref={instance => { this.mapChild = instance; }}/>
                         </Paper>
                     </Grid>
                 </Grid>
                 <br />
                 <Grid item xs={12}>
                     <Paper style={{ padding: '0px,10px,10px,10px', fontSize: 'inherit !important' }}>
-                        <FlightTable flights={[]} ref={instance => { this.tableChild = instance; }} />
+                        <FlightTable flights={[]} ref={instance => { this.tableChild = instance; }} onFlightSelected={this.onFlightSelected}/>
                     </Paper>
                 </Grid>
 
