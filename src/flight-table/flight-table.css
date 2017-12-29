@@ -1,14 +1,5 @@
-.MuiTableHead-root-90, .MuiTypography-title-44, 
-.MuiTableBody-root-123, .MuiTableFooter-root-124, 
-.MuiTypography-caption-48, .MuiTooltip-tooltip-65, 
-.MuiTableHead-root-34, .MuiTableBody-root-80, 
-.Pagination-rowsLabel-105, .MuiIconButton-root-83, 
-.MuiButton-root-111, .PageSizeSelector-pageSizeSelector-126, .MuiTableHead-root-123, .PageSizeSelector-pageSizeSelector-215, .Pagination-pagination-193, .Pagination-rowsLabel-194,
-.MuiButtonBase-root-160, .MuiTableBody-root-169, .MuiButtonBase-root-160 .MuiTableSortLabel-root-155 .SortingControl-sortLabelRoot-144,
-.MuiTooltip-root-146 > .SortingControl-tooltipRoot-143, .PageSizeSelector-pageSizeSelector-205, .Pagination-rowsLabel-175, .MuiTooltip-tooltip-149 {
-    font-size: inherit !important;
-}
-
-[class^="MuiMenuItem"],[class*='MuiMenuItem'] {
+[class^="MuiMenuItem"],[class*='MuiTable'],[class*='MuiTypography'],
+[class*='Pagination'],[class*='PageSizeSelector'],[class*='SortingControl'],
+[class*='MuiButtonBase'],[class*='MuiTooltip'] {
     font-size: inherit !important;
 }
